@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenTech IoT — Estufa Inteligente</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g1: #0a1a0d;
+    --g2: #0f2d14;
+    --g3: #1a4a1e;
+    --accent: #4ade80;
+    --accent2: #86efac;
+    --accent3: #bbf7d0;
+    --amber: #fbbf24;
+    --blue: #38bdf8;
+    --red: #f87171;
+    --text: #f0fdf4;
+    --muted: #86efac;
+    --card: rgba(15,45,20,0.7);
+    --border: rgba(74,222,128,0.15);
+    --radius: 16px;
+    --radius-sm: 8px;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--g1);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ——— NOISE TEXTURE ——— */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ——— NAVBAR ——— */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(20px);
+    background: rgba(10,26,13,0.85);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .logo-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 400; letter-spacing: 0.3px; transition: color .2s; }
+  nav a:hover { color: var(--accent); }
+  .nav-btn {
+    background: var(--accent);
+    color: var(--g1);
+    padding: 10px 22px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background .2s, transform .15s;
+  }
+  .nav-btn:hover { background: var(--accent2); transform: scale(1.03); }
+
+  /* ——— SECTIONS ——— */
+  section { position: relative; z-index: 1; }
+
+  /* ——— HERO ——— */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(74,222,128,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+  .hero-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+  h1 {
+    font-family: var(--font-head);
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -3px;
+    max-width: 900px;
+    margin-bottom: 28px;
+  }
+  h1 em { color: var(--accent); font-style: normal; }
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+  .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--g1);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: none;
+    transition: all .2s;
+    font-family: var(--font-head);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(74,222,128,0.3); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 16px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all .2s;
+  }
+  .btn-outline:hover { border-color: rgba(74,222,128,0.5); color: var(--accent); }
+
+  /* ——— FLOATING METRICS ——— */
+  .metrics-bar {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 64px;
+    position: relative;
+    z-index: 2;
+  }
+  .metric-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    backdrop-filter: blur(10px);
+    animation: float 4s ease-in-out infinite;
+  }
+  .metric-chip:nth-child(2) { animation-delay: 0.5s; }
+  .metric-chip:nth-child(3) { animation-delay: 1s; }
+  .metric-chip:nth-child(4) { animation-delay: 1.5s; }
+  .metric-chip:nth-child(5) { animation-delay: 2s; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  .chip-icon { font-size: 28px; }
+  .chip-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .chip-value { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--accent); }
+
+  /* ——— DASHBOARD LIVE ——— */
+  #dashboard {
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-tag {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-family: var(--font-head);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  h2 em { color: var(--accent); font-style: normal; }
+  .section-sub { color: var(--muted); font-size: 17px; max-width: 500px; margin-bottom: 56px; font-weight: 300; }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 20px;
+  }
+  .dash-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, transform .3s;
+  }
+  .dash-card:hover { border-color: rgba(74,222,128,0.4); transform: translateY(-3px); }
+  .dash-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(74,222,128,0.04), transparent);
+    pointer-events: none;
+  }
+  .dash-card.wide { grid-column: span 2; }
+  .dash-card.tall { grid-row: span 2; }
+  .card-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s infinite; }
+  .card-value { font-family: var(--font-head); font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -2px; margin-bottom: 6px; }
+  .card-unit { font-size: 18px; color: var(--muted); font-weight: 300; }
+  .card-delta { font-size: 13px; color: var(--accent); margin-top: 8px; }
+
+  /* MINI CHART */
+  .mini-chart { margin-top: 20px; height: 60px; position: relative; }
+  .mini-chart svg { width: 100%; height: 100%; }
+  .chart-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-area { fill: url(#chartGrad); opacity: 0.3; }
+
+  /* ACTUATOR CARDS */
+  .actuator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .actuator-item {
+    background: rgba(74,222,128,0.06);
+    border: 1px solid rgba(74,222,128,0.12);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .actuator-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .actuator-status { font-size: 12px; color: var(--muted); }
+  .toggle {
+    width: 48px; height: 26px;
+    background: var(--g3);
+    border-radius: 100px;
+    position: relative;
+    cursor: pointer;
+    transition: background .3s;
+    border: 1px solid var(--border);
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: transform .3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .toggle.on::after { transform: translateX(22px); }
+
+  /* ——— GRANDEZAS ——— */
+  #grandezas {
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .grandezas-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .grandeza-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .grandeza-card:hover { border-color: rgba(74,222,128,0.5); transform: translateY(-4px); }
+  .grandeza-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform .3s;
+    transform-origin: left;
+  }
+  .grandeza-card:hover::after { transform: scaleX(1); }
+  .g-emoji { font-size: 40px; margin-bottom: 16px; display: block; }
+  .g-name { font-family: var(--font-head); font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .g-sensor { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .g-reading { font-family: var(--font-head); font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+  .g-unit { font-size: 14px; color: var(--muted); }
+  .g-range { font-size: 11px; color: rgba(134,239,172,0.5); margin-top: 8px; }
+
+  /* ——— ARQUITETURA ——— */
+  #arquitetura {
+    padding: 100px 48px;
+    background: rgba(15,45,20,0.3);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .arq-inner { max-width: 1200px; margin: 0 auto; }
+  .arq-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 56px;
+    flex-wrap: wrap;
+  }
+  .arq-node {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    text-align: center;
+    min-width: 150px;
+    backdrop-filter: blur(10px);
+    transition: all .3s;
+    cursor: default;
+  }
+  .arq-node:hover { border-color: rgba(74,222,128,0.5); transform: scale(1.03); }
+  .arq-icon { font-size: 36px; margin-bottom: 12px; }
+  .arq-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .arq-desc { font-size: 12px; color: var(--muted); }
+  .arq-arrow {
+    color: var(--accent);
+    font-size: 24px;
+    padding: 0 8px;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+  .arq-cloud { background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.3); }
+  .arq-cloud .arq-icon, .arq-cloud .arq-title { color: var(--blue); }
+
+  /* ——— NUVEM ——— */
+  #nuvem {
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .nuvem-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .nuvem-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    backdrop-filter: blur(10px);
+    transition: all .3s;
+  }
+  .nuvem-card:hover { border-color: rgba(56,189,248,0.4); transform: translateY(-4px); }
+  .nuvem-icon { font-size: 40px; margin-bottom: 20px; }
+  .nuvem-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  .nuvem-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .nuvem-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+  .tag {
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .tag.blue { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.2); color: var(--blue); }
+
+  /* ——— TECNOLOGIAS ——— */
+  #tech {
+    padding: 100px 48px;
+    background: rgba(15,45,20,0.3);
+    border-top: 1px solid var(--border);
+  }
+  .tech-inner { max-width: 1200px; margin: 0 auto; }
+  .tech-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .tech-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    backdrop-filter: blur(10px);
+    transition: all .3s;
+  }
+  .tech-card:hover { border-color: rgba(74,222,128,0.4); transform: translateY(-3px); }
+  .tech-cat { font-size: 11px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; font-weight: 600; margin-bottom: 20px; }
+  .tech-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(74,222,128,0.07); }
+  .tech-item:last-child { border-bottom: none; }
+  .tech-bullet { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; flex-shrink: 0; opacity: 0.7; }
+  .tech-name { font-size: 14px; font-weight: 500; }
+  .tech-role { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* ——— MODELAGEM ——— */
+  
+  
+
+  /* ——— CTA FINAL ——— */
+  #cta {
+    padding: 120px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #cta::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+  }
+  #cta h2 { font-size: clamp(36px, 6vw, 72px); max-width: 700px; margin: 0 auto 24px; }
+  #cta p { color: var(--muted); font-size: 18px; max-width: 480px; margin: 0 auto 48px; font-weight: 300; }
+
+  /* ——— FOOTER ——— */
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+  .footer-brand { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--accent); }
+  .footer-info { font-size: 13px; color: var(--muted); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color .2s; }
+  .footer-links a:hover { color: var(--accent); }
+
+  /* ——— SCROLLBAR ——— */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--g1); }
+  ::-webkit-scrollbar-thumb { background: var(--g3); border-radius: 100px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ——— ANIMATIONS ——— */
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    nav ul { display: none; }
+    #dashboard, #grandezas, #arquitetura, #nuvem, #tech, #modelagem, #cta { padding: 60px 24px; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .dash-card.wide { grid-column: span 1; }
+    .grandezas-grid { grid-template-columns: repeat(2, 1fr); }
+    .nuvem-grid, .tech-grid { grid-template-columns: 1fr; }
+    .model-showcase { grid-template-columns: 1fr; }
+    .arq-flow { flex-direction: column; }
+    .arq-arrow { transform: rotate(90deg); }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#hero" class="logo">
+    <div class="logo-dot"></div>
+    GreenTech<em style="color:inherit;opacity:0.5">IoT</em>
+  </a>
+  <ul>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#grandezas">Sensores</a></li>
+    <li><a href="#arquitetura">Arquitetura</a></li>
+    <li><a href="#nuvem">Nuvem</a></li>
+    <li><a href="#tech">Tecnologias</a></li>
+  </ul>
+  <a href="#cta" class="nav-btn">Ver Projeto</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span></span> Sistema Online — Dados em Tempo Real</div>
+  <h1>Estufa <em>Inteligente</em><br>com IoT</h1>
+  <p class="hero-sub">Monitoramento contínuo de 5 grandezas físicas, acionamento de atuadores e armazenamento em nuvem — tudo integrado.</p>
+  <div class="hero-ctas">
+    <a href="#dashboard" class="btn-primary">Ver Dashboard</a>
+    <a href="#arquitetura" class="btn-outline">Arquitetura do Sistema</a>
+  </div>
+
+  <div class="metrics-bar">
+    <div class="metric-chip">
+      <span class="chip-icon">🌡️</span>
+      <div>
+        <div class="chip-label">Temperatura</div>
+        <div class="chip-value">28.4°C</div>
+      </div>
+    </div>
+    <div class="metric-chip">
+      <span class="chip-icon">💧</span>
+      <div>
+        <div class="chip-label">Umidade</div>
+        <div class="chip-value">72%</div>
+      </div>
+    </div>
+    <div class="metric-chip">
+      <span class="chip-icon">☀️</span>
+      <div>
+        <div class="chip-label">Luminosidade</div>
+        <div class="chip-value">3400 lx</div>
+      </div>
+    </div>
+    <div class="metric-chip">
+      <span class="chip-icon">🌱</span>
+      <div>
+        <div class="chip-label">Solo</div>
+        <div class="chip-value">65%</div>
+      </div>
+    </div>
+    <div class="metric-chip">
+      <span class="chip-icon">🌬️</span>
+      <div>
+        <div class="chip-label">CO₂</div>
+        <div class="chip-value">412 ppm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+  <div class="section-tag">— Dashboard ao Vivo</div>
+  <h2>Monitoramento em <em>Tempo Real</em></h2>
+  <p class="section-sub">Todos os dados coletados pelos sensores são exibidos e atualizados continuamente via protocolo MQTT e armazenados na nuvem.</p>
+
+  <div class="dashboard-grid">
+    <!-- Temperatura Card -->
+    <div class="dash-card fade-in">
+      <div class="card-label"><div class="status-dot"></div> Temperatura Interna</div>
+      <div class="card-value" id="temp-val">28.4<span class="card-unit">°C</span></div>
+      <div class="card-delta">▲ +1.2°C na última hora</div>
+      <div class="mini-chart">
+        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4ade80" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#4ade80" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="temp-chart-area" class="chart-area" d=""/>
+          <path id="temp-chart-line" class="chart-line" d=""/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Umidade Card -->
+    <div class="dash-card fade-in">
+      <div class="card-label"><div class="status-dot"></div> Umidade do Ar</div>
+      <div class="card-value" id="hum-val">72<span class="card-unit">%</span></div>
+      <div class="card-delta">▼ -3% desde ontem</div>
+      <div class="mini-chart">
+        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+          <path id="hum-chart-area" class="chart-area" style="fill:url(#chartGrad)" d=""/>
+          <path id="hum-chart-line" class="chart-line" style="stroke:#38bdf8" d=""/>
+        </svg>
+      </div>
+    </div>
+
+    
+
+    <!-- CO2 -->
+    <div class="dash-card fade-in">
+      <div class="card-label"><div class="status-dot"></div> CO₂ Atmosférico</div>
+      <div class="card-value" id="co2-val">412<span class="card-unit">ppm</span></div>
+      <div class="card-delta">→ Nível normal para cultivo</div>
+      <div class="mini-chart">
+        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+          <path id="co2-chart-area" class="chart-area" style="fill:url(#chartGrad)" d=""/>
+          <path id="co2-chart-line" class="chart-line" style="stroke:#fbbf24" d=""/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Luminosidade Card -->
+    <div class="dash-card fade-in">
+      <div class="card-label"><div class="status-dot"></div> Luminosidade</div>
+      <div class="card-value" id="lux-val">3400<span class="card-unit">lx</span></div>
+      <div class="card-delta">▲ Pico solar às 13h</div>
+    </div>
+
+    <!-- Solo Card -->
+    <div class="dash-card fade-in">
+      <div class="card-label"><div class="status-dot"></div> Umidade do Solo</div>
+      <div class="card-value" id="soil-val">65<span class="card-unit">%</span></div>
+      <div class="card-delta">✓ Dentro do ideal</div>
+    </div>
+  </div>
+</section>
+
+<!-- GRANDEZAS -->
+<section id="grandezas" style="border-top: 1px solid var(--border); padding-top:100px;">
+  <div style="max-width:1200px; margin:0 auto; padding:0 0 100px;">
+    <div class="section-tag">— Sensores Físicos</div>
+    <h2>5 Grandezas <em>Monitoradas</em></h2>
+    <p class="section-sub">Cada sensor escolhido por precisão e adequação ao ambiente de estufa.</p>
+
+    <div class="grandezas-grid">
+      <div class="grandeza-card fade-in">
+        <span class="g-emoji">🌡️</span>
+        <div class="g-name">Temperatura</div>
+        <div class="g-sensor">Sensor DHT22 / DS18B20</div>
+        <div class="g-reading">28.4 <span class="g-unit">°C</span></div>
+        <div class="g-range">Ideal: 22°C – 32°C</div>
+      </div>
+      <div class="grandeza-card fade-in">
+        <span class="g-emoji">💧</span>
+        <div class="g-name">Umidade do Ar</div>
+        <div class="g-sensor">Sensor DHT22</div>
+        <div class="g-reading">72 <span class="g-unit">%</span></div>
+        <div class="g-range">Ideal: 60% – 80%</div>
+      </div>
+      <div class="grandeza-card fade-in">
+        <span class="g-emoji">☀️</span>
+        <div class="g-name">Luminosidade</div>
+        <div class="g-sensor">Sensor BH1750 / LDR</div>
+        <div class="g-reading">3400 <span class="g-unit">lx</span></div>
+        <div class="g-range">Ideal: 2000 – 5000 lx</div>
+      </div>
+      <div class="grandeza-card fade-in">
+        <span class="g-emoji">🌱</span>
+        <div class="g-name">Umidade do Solo</div>
+        <div class="g-sensor">Sensor Capacitivo v2</div>
+        <div class="g-reading">65 <span class="g-unit">%</span></div>
+        <div class="g-range">Ideal: 50% – 70%</div>
+      </div>
+      <div class="grandeza-card fade-in">
+        <span class="g-emoji">🌬️</span>
+        <div class="g-name">CO₂ / Qualidade do Ar</div>
+        <div class="g-sensor">Sensor MQ-135 / SCD30</div>
+        <div class="g-reading">412 <span class="g-unit">ppm</span></div>
+        <div class="g-range">Ideal: 400 – 1000 ppm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARQUITETURA -->
+<section id="arquitetura">
+  <div class="arq-inner">
+    <div class="section-tag">— Arquitetura do Sistema</div>
+    <h2>Do Sensor <em>à Nuvem</em></h2>
+    <p class="section-sub">Fluxo completo de dados: coleta, processamento, transmissão e armazenamento em tempo real.</p>
+
+    <div class="arq-flow">
+      <div class="arq-node fade-in">
+        <div class="arq-icon">🔬</div>
+        <div class="arq-title">Sensores</div>
+        <div class="arq-desc">DHT22, BH1750<br>MQ-135, Solo</div>
+      </div>
+      <div class="arq-arrow">→</div>
+      <div class="arq-node fade-in">
+        <div class="arq-icon">🤖</div>
+        <div class="arq-title">ESP32 / Arduino</div>
+        <div class="arq-desc">Leitura & controle<br>de atuadores</div>
+      </div>
+      <div class="arq-arrow">→</div>
+      <div class="arq-node fade-in">
+        <div class="arq-icon">📡</div>
+        <div class="arq-title">Wi-Fi / MQTT</div>
+        <div class="arq-desc">Protocolo de<br>transmissão IoT</div>
+      </div>
+      <div class="arq-arrow">→</div>
+      <div class="arq-node arq-cloud fade-in">
+        <div class="arq-icon">☁️</div>
+        <div class="arq-title">Cloud (Firebase)</div>
+        <div class="arq-desc">Banco de dados<br>em tempo real</div>
+      </div>
+      <div class="arq-arrow">→</div>
+      <div class="arq-node arq-cloud fade-in">
+        <div class="arq-icon">📊</div>
+        <div class="arq-title">Dashboard</div>
+        <div class="arq-desc">Visualização &<br>alertas remotos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUVEM -->
+<section id="nuvem">
+  <div class="section-tag">— Armazenamento em Nuvem</div>
+  <h2>Dados Seguros na <em>Nuvem</em></h2>
+  <p class="section-sub">Toda leitura dos sensores é enviada e armazenada em tempo real com histórico completo.</p>
+
+  <div class="nuvem-grid">
+    <div class="nuvem-card fade-in">
+      <div class="nuvem-icon">🔥</div>
+      <div class="nuvem-title">Firebase Realtime DB</div>
+      <div class="nuvem-desc">Banco de dados NoSQL em nuvem do Google. Sincronização instantânea, offline-first e latência ultra-baixa para dados IoT.</div>
+      <div class="nuvem-tags">
+        <span class="tag">JSON</span>
+        <span class="tag">Realtime</span>
+        <span class="tag">Google Cloud</span>
+      </div>
+    </div>
+    <div class="nuvem-card fade-in">
+      <div class="nuvem-icon">📡</div>
+      <div class="nuvem-title">Protocolo MQTT</div>
+      <div class="nuvem-desc">Lightweight messaging ideal para dispositivos IoT. Publish/Subscribe com broker Mosquitto ou HiveMQ, garantindo entrega confiável dos dados.</div>
+      <div class="nuvem-tags">
+        <span class="tag blue">MQTT 3.1</span>
+        <span class="tag blue">Broker</span>
+        <span class="tag blue">QoS</span>
+      </div>
+    </div>
+    <div class="nuvem-card fade-in">
+      <div class="nuvem-icon">📊</div>
+      <div class="nuvem-title">Grafana / Dashboard</div>
+      <div class="nuvem-desc">Visualização profissional com gráficos históricos, alertas automáticos por e-mail/WhatsApp quando valores saem do ideal.</div>
+      <div class="nuvem-tags">
+        <span class="tag">Alertas</span>
+        <span class="tag">Histórico</span>
+        <span class="tag">Relatórios</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECNOLOGIAS -->
+<section id="tech">
+  <div class="tech-inner">
+    <div class="section-tag">— Stack Tecnológico</div>
+    <h2>Tecnologias <em>Utilizadas</em></h2>
+    <p class="section-sub" style="margin-bottom:48px;">Hardware, firmware, back-end e front-end integrados numa solução completa.</p>
+
+    <div class="tech-grid">
+      <div class="tech-card fade-in">
+        <div class="tech-cat">⚙️ Hardware</div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">ESP32</div><div class="tech-role">Microcontrolador</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">DHT22</div><div class="tech-role">Temp/Umidade</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">BH1750</div><div class="tech-role">Luminosidade</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">MQ-135</div><div class="tech-role">CO₂/Gases</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Relay Module</div><div class="tech-role">Atuadores</div></div>
+      </div>
+      <div class="tech-card fade-in">
+        <div class="tech-cat">💻 Firmware</div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Arduino IDE</div><div class="tech-role">Programação</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">C/C++</div><div class="tech-role">Linguagem</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">PubSubClient</div><div class="tech-role">MQTT Lib</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">WiFi.h</div><div class="tech-role">Conectividade</div></div>
+        
+      </div>
+      <div class="tech-card fade-in">
+        <div class="tech-cat">☁️ Back-end / Nuvem</div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Firebase</div><div class="tech-role">Banco Realtime</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">HiveMQ</div><div class="tech-role">Broker MQTT</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Node.js</div><div class="tech-role">Servidor</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">REST API</div><div class="tech-role">Endpoints</div></div>
+        
+      </div>
+      <div class="tech-card fade-in">
+        <div class="tech-cat">🎨 Front-end</div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">React</div><div class="tech-role">Interface</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Chart.js</div><div class="tech-role">Gráficos</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Grafana</div><div class="tech-role">Dashboard</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">Tailwind CSS</div><div class="tech-role">Estilização</div></div>
+        <div class="tech-item"><div class="tech-bullet"></div><div class="tech-name">WebSocket</div><div class="tech-role">Tempo Real</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- CTA -->
+<section id="cta">
+  <div class="section-tag" style="margin-bottom:20px;">— Projeto Acadêmico IoT</div>
+  <h2>Pronto para <em>Cultivar</em> o Futuro?</h2>
+  <p>Sistema completo de estufa inteligente com monitoramento em tempo real, controle remoto e análise de dados em nuvem.</p>
+  <div class="hero-ctas">
+    <a href="#dashboard" class="btn-primary">Ver Dashboard ao Vivo</a>
+    <a href="#grandezas" class="btn-outline">Explorar Sensores</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">🌿 GreenTech IoT</div>
+  <div class="footer-info">Projeto de Estufa Inteligente — IoT 2026</div>
+  <div class="footer-links">
+    <a href="#hero">Início</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#arquitetura">Arquitetura</a>
+  </div>
+</footer>
+
+<script>
+// ——— ANIMATED CHARTS ———
+function generatePath(baseVals, width, height) {
+  const n = baseVals.length;
+  const step = width / (n - 1);
+  let d = `M 0 ${height - baseVals[0] * height}`;
+  for (let i = 1; i < n; i++) {
+    const x = i * step;
+    const y = height - baseVals[i] * height;
+    const px = (i - 0.5) * step;
+    d += ` C ${px} ${height - baseVals[i-1] * height}, ${px} ${y}, ${x} ${y}`;
+  }
+  return d;
+}
+
+function setChart(lineId, areaId, vals) {
+  const line = document.getElementById(lineId);
+  const area = document.getElementById(areaId);
+  if (!line) return;
+  const d = generatePath(vals, 200, 60);
+  line.setAttribute('d', d);
+  if (area) area.setAttribute('d', d + ` L 200 60 L 0 60 Z`);
+}
+
+let tempHistory = [0.3, 0.35, 0.4, 0.38, 0.45, 0.5, 0.48, 0.52, 0.55, 0.58];
+let humHistory  = [0.7, 0.72, 0.68, 0.65, 0.7, 0.73, 0.72, 0.7, 0.68, 0.72];
+let co2History  = [0.4, 0.42, 0.38, 0.43, 0.45, 0.41, 0.43, 0.44, 0.42, 0.41];
+
+function updateCharts() {
+  setChart('temp-chart-line', 'temp-chart-area', tempHistory);
+  setChart('hum-chart-line', 'hum-chart-area', humHistory);
+  setChart('co2-chart-line', 'co2-chart-area', co2History);
+}
+
+function simulateLive() {
+  const tempBase = 28.4 + (Math.random() - 0.5) * 0.5;
+  const humBase  = 72   + (Math.random() - 0.5) * 2;
+  const co2Base  = 412  + (Math.random() - 0.5) * 15;
+  const luxBase  = 3400 + (Math.random() - 0.5) * 200;
+  const soilBase = 65   + (Math.random() - 0.5) * 2;
+
+  document.getElementById('temp-val').innerHTML = tempBase.toFixed(1) + '<span class="card-unit">°C</span>';
+  document.getElementById('hum-val').innerHTML  = Math.round(humBase) + '<span class="card-unit">%</span>';
+  document.getElementById('co2-val').innerHTML  = Math.round(co2Base) + '<span class="card-unit">ppm</span>';
+  document.getElementById('lux-val').innerHTML  = Math.round(luxBase) + '<span class="card-unit">lx</span>';
+  document.getElementById('soil-val').innerHTML = Math.round(soilBase) + '<span class="card-unit">%</span>';
+
+  tempHistory.push((tempBase - 20) / 20);
+  humHistory.push(humBase / 100);
+  co2History.push((co2Base - 300) / 800);
+  tempHistory.shift(); humHistory.shift(); co2History.shift();
+
+  updateCharts();
+
+  // Update chip values in hero
+  const chips = document.querySelectorAll('.chip-value');
+  if (chips[0]) chips[0].textContent = tempBase.toFixed(1) + '°C';
+  if (chips[1]) chips[1].textContent = Math.round(humBase) + '%';
+  if (chips[2]) chips[2].textContent = Math.round(luxBase) + ' lx';
+  if (chips[3]) chips[3].textContent = Math.round(soilBase) + '%';
+  if (chips[4]) chips[4].textContent = Math.round(co2Base) + ' ppm';
+}
+
+updateCharts();
+// setInterval(simulateLive, 2000);
+
+// ——— ACTUATOR TOGGLE ———
+function toggleActuator(id) {
+  const t = document.getElementById(id + '-toggle');
+  const s = document.getElementById(id + '-status');
+  t.classList.toggle('on');
+  if (id === 'pump') s.textContent = t.classList.contains('on') ? 'Ligada' : 'Desligada';
+  if (id === 'fan')  s.textContent = t.classList.contains('on') ? 'Ligado' : 'Desligado';
+}
+
+// ——— SCROLL ANIMATIONS ———
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// FIREBASE REALTIME
+const firebaseConfig = {
+
+  apiKey: "AIzaSyBLt3oJhIbwhDJKN7PTBU2HNKb-yjD359k",
+
+  authDomain: "greentech-iot-a0fd9.firebaseapp.com",
+
+  databaseURL: "https://greentech-iot-a0fd9-default-rtdb.firebaseio.com",
+
+  projectId: "greentech-iot-a0fd9",
+
+  storageBucket: "greentech-iot-a0fd9.firebasestorage.app",
+
+  messagingSenderId: "81236056795",
+
+  appId: "1:81236056795:web:16335062374a1d6f5c4afe"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+db.ref("estufa").on("value", (snapshot) => {
+
+  const data = snapshot.val();
+
+  if(data){
+
+    // DASHBOARD
+    const temp = document.getElementById('temp-val');
+    const hum = document.getElementById('hum-val');
+    const co2 = document.getElementById('co2-val');
+    const lux = document.getElementById('lux-val');
+    const soil = document.getElementById('soil-val');
+
+    if(temp){
+      temp.innerHTML = data.temperatura.toFixed(1) + '<span class="card-unit">°C</span>';
+    }
+
+    if(hum){
+      hum.innerHTML = data.umidade + '<span class="card-unit">%</span>';
+    }
+
+    if(co2){
+      co2.innerHTML = data.gases + '<span class="card-unit">ppm</span>';
+    }
+
+    if(lux){
+      lux.innerHTML = data.luminosidade + '<span class="card-unit">lx</span>';
+    }
+
+    if(soil){
+      soil.innerHTML = data.solo + '<span class="card-unit">%</span>';
+    }
+
+    // HERO CHIPS
+    const chips = document.querySelectorAll('.chip-value');
+
+    if (chips[0]) chips[0].textContent =
+      data.temperatura.toFixed(1) + '°C';
+
+    if (chips[1]) chips[1].textContent =
+      data.umidade + '%';
+
+    if (chips[2]) chips[2].textContent =
+      data.luminosidade + ' lx';
+
+    if (chips[3]) chips[3].textContent =
+      data.solo + '%';
+
+    if (chips[4]) chips[4].textContent =
+      data.gases + ' ppm';
+
+  }
+
+});
+
+</script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+<section id="video-demo" style="padding:60px;text-align:center;background:#031b12;">
+
+<h2 style="color:#00ff99;font-size:42px;margin-bottom:30px;">
+🎥 Demonstração do Sistema IoT
+</h2>
+
+
+
+
+<iframe
+  src="https://drive.google.com/file/d/1AwgprA8YB_w4wIWKW3Hbsqf88R35Zi-5/preview"
+  width="90%"
+  height="500"
+  allow="autoplay"
+  style="
+    border-radius:20px;
+    border:3px solid #00ff99;
+    box-shadow:0 0 25px rgba(0,255,153,0.4);
+  ">
+</iframe>
+
+
+
+<p style="margin-top:20px;color:white;font-size:20px;">
+Sistema GreenTech IoT funcionando em tempo real
+</p>
+
+</section>
+
+</body>
+</html>
