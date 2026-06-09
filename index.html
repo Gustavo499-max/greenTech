@@ -577,6 +577,63 @@
   <p class="section-sub">Todos os dados coletados pelos sensores são exibidos e atualizados continuamente via protocolo MQTT e armazenados na nuvem.</p>
 
   <div class="dashboard-grid">
+
+<!-- STATUS DOS ATUADORES -->
+<div class="dash-card fade-in wide">
+
+  <div class="card-label">
+    <div class="status-dot"></div>
+    Atuadores Automáticos
+  </div>
+
+  <div class="actuator-grid">
+
+    <div class="actuator-item">
+
+      <div>
+        <div class="actuator-name">
+          🌱 Irrigação
+        </div>
+
+        <div id="irrigacao-status"
+             class="actuator-status">
+
+          DESLIGADA
+
+        </div>
+      </div>
+
+      <div id="pump-toggle"
+           class="toggle">
+      </div>
+
+    </div>
+
+    <div class="actuator-item">
+
+      <div>
+        <div class="actuator-name">
+          🌬️ Ventilação
+        </div>
+
+        <div id="ventilacao-status"
+             class="actuator-status">
+
+          DESLIGADA
+
+        </div>
+      </div>
+
+      <div id="fan-toggle"
+           class="toggle">
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
     <!-- Temperatura Card -->
     <div class="dash-card fade-in">
       <div class="card-label"><div class="status-dot"></div> Temperatura Interna</div>
@@ -996,6 +1053,56 @@ db.ref("estufa").on("value", (snapshot) => {
     if (chips[4]) chips[4].textContent =
       data.gases + ' ppm';
 
+
+
+    // ================= IRRIGAÇÃO =================
+
+    const irrigacaoStatus =
+      document.getElementById("irrigacao-status");
+
+    const pumpToggle =
+      document.getElementById("pump-toggle");
+
+    if(data.irrigacao === "LIGADA"){
+
+      irrigacaoStatus.textContent =
+        "LIGADA";
+
+      pumpToggle.classList.add("on");
+
+    } else {
+
+      irrigacaoStatus.textContent =
+        "DESLIGADA";
+
+      pumpToggle.classList.remove("on");
+
+    }
+
+    // ================= VENTILAÇÃO =================
+
+    const ventilacaoStatus =
+      document.getElementById("ventilacao-status");
+
+    const fanToggle =
+      document.getElementById("fan-toggle");
+
+    if(data.ventilacao === "LIGADA"){
+
+      ventilacaoStatus.textContent =
+        "LIGADA";
+
+      fanToggle.classList.add("on");
+
+    } else {
+
+      ventilacaoStatus.textContent =
+        "DESLIGADA";
+
+      fanToggle.classList.remove("on");
+
+    }
+
   }
 
 });
@@ -1068,6 +1175,8 @@ Sistema GreenTech IoT funcionando em tempo real
 </p>
 
 </section>
+
+
 
 </body>
 </html>
